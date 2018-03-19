@@ -8,20 +8,20 @@ import java.util.ArrayList;
 
 public class Tomograf {
 
-    static Raster raster;
+    private static Raster raster;
 
-    int detectorsNo = 50;
-    double detectorRange = 90.0;
+    private int detectorsNo = 50;
+    private double detectorRange = 90.0;
     private double emitterStep = 2.0;
 
-    int steps = (int) (360 / emitterStep);
+    private int steps = (int) (360 / emitterStep);
 
-    ArrayList<Integer> emitterPositionsX = new ArrayList<>();
-    ArrayList<Integer> emitterPositionsY = new ArrayList<>();
-    ArrayList<ArrayList<Integer>> detectorPositionsX = new ArrayList<>();
-    ArrayList<ArrayList<Integer>> detectorPositionsY = new ArrayList<>();
+    private ArrayList<Integer> emitterPositionsX = new ArrayList<>();
+    private ArrayList<Integer> emitterPositionsY = new ArrayList<>();
+    private ArrayList<ArrayList<Integer>> detectorPositionsX = new ArrayList<>();
+    private ArrayList<ArrayList<Integer>> detectorPositionsY = new ArrayList<>();
 
-    int[][] sinograph = new int[steps][detectorsNo]; //albo na odwrot
+    private int[][] sinograph = new int[steps][detectorsNo]; //albo na odwrot
 
     private void generatePositions(int startingX, int startingY, int radius) {
         double step = Math.toRadians(emitterStep);
@@ -99,7 +99,7 @@ public class Tomograf {
         }
     }
 
-    public void writeImage() {
+    private void writeImage() {
         String path = "res/output.png";
 //        BufferedImage image = new BufferedImage(sinograph.length, sinograph[0].length, BufferedImage.TYPE_INT_RGB);
         BufferedImage image = new BufferedImage(sinograph.length, sinograph[0].length, BufferedImage.TYPE_INT_RGB);
@@ -127,10 +127,6 @@ public class Tomograf {
         raster = image.getData();
 
         tomo.bresenham();
-
-        for (int i = 0; i < tomo.detectorsNo; i++) {
-            System.out.println(tomo.sinograph[0][i]);
-        }
 
         JFrame frame = new JFrame("Tomografia");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
