@@ -3,8 +3,8 @@ import java.util.ArrayList;
 
 public class Tomograf {
 
-    int detectorsNo = 10;
-    int detectorRange = 180;
+    int detectorsNo = 20;
+    int detectorRange = 90;
     private int emitterStep = 2; // math.toradians
     ArrayList<Integer> emitterPositionsX = new ArrayList<>();
     ArrayList<Integer> emitterPositionsY = new ArrayList<>();
@@ -20,10 +20,10 @@ public class Tomograf {
             emitterPositionsY.add((int) (startingY + (Math.sin(i * step) * radius)));
             ArrayList<Integer> positionsX = new ArrayList<>();
             ArrayList<Integer> positionsY = new ArrayList<>();
-            int firstDetectorAngle[] = {(int) ((i * step) + etdAngle), (int) ((i * step) + etdAngle)};
+            double firstDetectorAngle = ((i * step) + etdAngle);
             for (int j = 0; j < detectorsNo; j++) {
-                positionsX.add((int) (startingX + (Math.cos(firstDetectorAngle[0] + (j * detectorAngle)) * radius)));
-                positionsY.add((int) (startingY + (Math.sin(firstDetectorAngle[1] + (j * detectorAngle)) * radius)));
+                positionsX.add((int) (startingX + (Math.cos(firstDetectorAngle + (j * detectorAngle)) * radius)));
+                positionsY.add((int) (startingY + (Math.sin(firstDetectorAngle + (j * detectorAngle)) * radius)));
             }
             detectorPositionsX.add(positionsX);
             detectorPositionsY.add(positionsY);
