@@ -1,5 +1,6 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.io.File;
@@ -10,11 +11,12 @@ public class Tomograf {
 
     private static Raster raster;
 
-    private int detectorsNo = 50;
-    private double detectorRange = 90.0;
-    private double emitterStep = 2.0;
+    private int detectorsNo = 180;
+    private double detectorRange = 270.0;
+    private double emitterStep = 1.0;
+    private double startingAngle = Math.toRadians(90.0);
 
-    private int steps = (int) (360 / emitterStep);
+    private int steps = (int) (180 / emitterStep);
 
     private ArrayList<Integer> emitterPositionsX = new ArrayList<>();
     private ArrayList<Integer> emitterPositionsY = new ArrayList<>();
@@ -27,15 +29,15 @@ public class Tomograf {
         double step = Math.toRadians(emitterStep);
         double etdAngle = Math.toRadians(180.0 - (detectorRange / 2.0)); // emitter to 1st detector angle
         double detectorAngle = Math.toRadians(detectorRange / detectorsNo);
-        for (int i = 0; i < 360.0 / emitterStep; i++) {
-            emitterPositionsX.add((int) (startingX + (Math.cos(i * step) * radius))); //i + 1
-            emitterPositionsY.add((int) (startingY + (Math.sin(i * step) * radius)));
+        for (int i = 0; i < steps; i++) {
+            emitterPositionsX.add((int) (startingX + (Math.cos(i * step + startingAngle) * radius))); //i + 1
+            emitterPositionsY.add((int) (startingY + (Math.sin(i * step + startingAngle) * radius)));
             ArrayList<Integer> positionsX = new ArrayList<>();
             ArrayList<Integer> positionsY = new ArrayList<>();
             double firstDetectorAngle = ((i * step) + etdAngle);
             for (int j = 0; j < detectorsNo; j++) {
-                positionsX.add((int) (startingX + (Math.cos(firstDetectorAngle + (j * detectorAngle)) * radius)));
-                positionsY.add((int) (startingY + (Math.sin(firstDetectorAngle + (j * detectorAngle)) * radius)));
+                positionsX.add((int) (startingX + (Math.cos(firstDetectorAngle + startingAngle + (j * detectorAngle)) * radius)));
+                positionsY.add((int) (startingY + (Math.sin(firstDetectorAngle + startingAngle + (j * detectorAngle)) * radius)));
             }
             detectorPositionsX.add(positionsX);
             detectorPositionsY.add(positionsY);
@@ -105,7 +107,9 @@ public class Tomograf {
         BufferedImage image = new BufferedImage(sinograph.length, sinograph[0].length, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < steps; x++) {
             for (int y = 0; y < detectorsNo; y++) {
-                image.setRGB(x, y, sinograph[x][y]);
+                Color c = new Color(sinograph[x][y], sinograph[x][y], sinograph[x][y]);
+//                image.setRGB(x, y, sinograph[x][y]);
+                image.setRGB(x, y, c.getRGB());
             }
         }
 
@@ -119,20 +123,23 @@ public class Tomograf {
     }
 
     public static void main(String[] args) throws IOException {
-        Tomograf tomo = new Tomograf();
-        tomo.generatePositions(200, 200, 199);
-
-        File file = new File("./photo.bmp");
+        File file = new File("./shepp256.png");
         BufferedImage image = ImageIO.read(file);
+        int size = image.getHeight();
+
         raster = image.getData();
+
+        Tomograf tomo = new Tomograf();
+        tomo.generatePositions(size/2, size/2, size/2-1);
 
         tomo.bresenham();
 
         JFrame frame = new JFrame("Tomografia");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(new MyPanel(tomo.emitterPositionsX.get(0), tomo.emitterPositionsY.get(0),
-                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo));
-        frame.setSize(400, 400);
+                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image));
+        //frame.setSize(size+20, size+20);
+        frame.pack();
         frame.setVisible(true);
 
         tomo.writeImage();
