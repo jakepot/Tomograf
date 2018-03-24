@@ -16,7 +16,8 @@ public class Tomograf {
     private double emitterStep = 1.0;
     private double startingAngle = Math.toRadians(90.0);
 
-    private int steps = (int) (180 / emitterStep);
+//    private int steps = (int) (180 / emitterStep); // dla 180 stopni
+    private int steps = (int) (360 / emitterStep);
 
     private ArrayList<Integer> emitterPositionsX = new ArrayList<>();
     private ArrayList<Integer> emitterPositionsY = new ArrayList<>();
@@ -24,6 +25,8 @@ public class Tomograf {
     private ArrayList<ArrayList<Integer>> detectorPositionsY = new ArrayList<>();
 
     private int[][] sinograph = new int[steps][detectorsNo]; //albo na odwrot
+
+    private int[][] reconstruction;
 
     private void generatePositions(int startingX, int startingY, int radius) {
         double step = Math.toRadians(emitterStep);
@@ -44,7 +47,7 @@ public class Tomograf {
         }
     }
 
-    private void bresenham() {
+    private void bresenham(boolean reconstruct) {
         int d = 0;
         for (int i = 0; i < emitterPositionsX.size(); i++) {
             for (int j = 0; j < detectorPositionsX.get(i).size(); j++) {
@@ -68,35 +71,73 @@ public class Tomograf {
 
                 int pixels = 0;
 
-                if (dx >= dy) {
-                    while (true) {
-                        sinograph[i][j] += raster.getSample(x, y, 0);
-                        pixels++;
-                        if (x == x2)
-                            break;
-                        x += ix;
-                        d += dy2;
-                        if (d > dx) {
+                if (!reconstruct) {
+                    if (dx >= dy) {
+                        while (true) {
+                            sinograph[i][j] += raster.getSample(x, y, 0);
+                            pixels++;
+                            if (x == x2)
+                                break;
+                            x += ix;
+                            d += dy2;
+                            if (d > dx) {
+                                y += iy;
+                                d -= dx2;
+                            }
+                        }
+                    } else {
+                        while (true) {
+                            sinograph[i][j] += raster.getSample(x, y, 0);
+                            pixels++;
+                            if (y == y2)
+                                break;
                             y += iy;
-                            d -= dx2;
+                            d += dx2;
+                            if (d > dy) {
+                                x += ix;
+                                d -= dy2;
+                            }
                         }
                     }
+                    sinograph[i][j] /= pixels;
                 } else {
-                    while (true) {
-                        sinograph[i][j] += raster.getSample(x, y, 0);
-                        pixels++;
-                        if (y == y2)
-                            break;
-                        y += iy;
-                        d += dx2;
-                        if (d > dy) {
+                    if (dx >= dy) {
+                        while (true) {
+//                            sinograph[i][j] += raster.getSample(x, y, 0);
+                            reconstruction[x][y] += sinograph[i][j];
+                            pixels++;
+                            if (x == x2)
+                                break;
                             x += ix;
-                            d -= dy2;
+                            d += dy2;
+                            if (d > dx) {
+                                y += iy;
+                                d -= dx2;
+                            }
+                        }
+                    } else {
+                        while (true) {
+//                            sinograph[i][j] += raster.getSample(x, y, 0);
+                            reconstruction[x][y] += sinograph[i][j];
+                            pixels++;
+                            if (y == y2)
+                                break;
+                            y += iy;
+                            d += dx2;
+                            if (d > dy) {
+                                x += ix;
+                                d -= dy2;
+                            }
                         }
                     }
                 }
-
-                sinograph[i][j] /= pixels;
+            }
+        }
+        if (reconstruct) {
+            for (int i = 0; i < reconstruction.length; i++) {
+                for (int j = 0; j < reconstruction.length; j++) {
+                    reconstruction[i][j] /= steps;
+                }
             }
         }
     }
@@ -122,6 +163,25 @@ public class Tomograf {
         System.out.println("Zapisano obraz.");
     }
 
+    private void writeReconstruction(int size) {
+        String path = "res/reconstruction.png";
+        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                Color c = new Color(reconstruction[x][y], reconstruction[x][y], reconstruction[x][y]);
+                image.setRGB(x, y, c.getRGB());
+            }
+        }
+
+        File ImageFile = new File(path);
+        try {
+            ImageIO.write(image, "png", ImageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Zapisano rekonstrukcje.");
+    }
+
     public static void main(String[] args) throws IOException {
         File file = new File("./shepp256.png");
         BufferedImage image = ImageIO.read(file);
@@ -132,7 +192,9 @@ public class Tomograf {
         Tomograf tomo = new Tomograf();
         tomo.generatePositions(size/2, size/2, size/2-1);
 
-        tomo.bresenham();
+        tomo.reconstruction = new int[size][size];
+        tomo.bresenham(false);
+        tomo.bresenham(true);
 
         JFrame frame = new JFrame("Tomografia");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -143,6 +205,7 @@ public class Tomograf {
         frame.setVisible(true);
 
         tomo.writeImage();
+        tomo.writeReconstruction(size);
     }
 
 }
