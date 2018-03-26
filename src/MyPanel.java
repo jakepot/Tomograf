@@ -62,6 +62,7 @@ public class MyPanel extends JPanel implements ActionListener {
         JLabel wej_lab = new JLabel(new ImageIcon(image));
         JLabel sin_lab = new JLabel(new ImageIcon(sin_img));
         JLabel wyj_lab = new JLabel(new ImageIcon(wyj_img));
+        Component comp = Box.createRigidArea(new Dimension(image.getWidth(), image.getHeight()));
         JLabel lab_slide_1 = new JLabel("Number of detectors");
         JLabel lab_slide_2 = new JLabel("Angle of detector cone");
         JLabel lab_slide_3 = new JLabel("Step of emitter");
@@ -75,7 +76,7 @@ public class MyPanel extends JPanel implements ActionListener {
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
                         .addGroup(layout.createSequentialGroup()
-                                .addComponent(img_lab)
+                                .addComponent(comp)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                         .addComponent(lab_slide_1)
                                         .addComponent(slider)
@@ -112,7 +113,7 @@ public class MyPanel extends JPanel implements ActionListener {
                                         .addGroup(layout.createParallelGroup()
                                                 .addComponent(err_lab)
                                                 .addComponent(err_val_lab)))
-                                .addComponent(img_lab))
+                                .addComponent(comp))
                         .addGroup(layout.createParallelGroup()
                                 .addComponent(lab_img_1)
                                 .addComponent(lab_img_2)
@@ -154,11 +155,11 @@ public class MyPanel extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        g.drawImage(image,0,0,this);
+        g.drawImage(image,10,10,this);
         g2d.drawLine(x, y, x, y);
         for (int i = 0; i < dets; i++) {
 //            g2d.drawLine(detXs.get(i), detYs.get(i), detXs.get(i), detYs.get(i));
-            g2d.drawLine(detXs.get(i), detYs.get(i), x, y);
+            g2d.drawLine(detXs.get(i) + 10, detYs.get(i) + 10, x + 10, y + 10);
         }
     }
 }
