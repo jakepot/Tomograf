@@ -230,10 +230,22 @@ public class Tomograf {
         frame = new JFrame("Tomografia");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(new MyPanel(tomo, tomo.emitterPositionsX.get(0), tomo.emitterPositionsY.get(0),
-                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image, sin_img, wyj_img, detectorsNo, detectorRange, emitterStep));
+                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image, sin_img, wyj_img, detectorsNo, detectorRange, emitterStep, estimate_error(image, wyj_img)));
         //frame.setSize(size+200, size+200);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public static double estimate_error(BufferedImage a, BufferedImage b){
+        int size = a.getHeight();
+        double sum = 0.0;
+        for(int i = 0; i < size; ++i){
+            for(int j = 0; j < size; ++j){
+                sum += Math.pow((a.getRGB(i, j) & 0x000000ff) - (b.getRGB(i, j) & 0x000000ff), 2.0);
+            }
+        }
+        sum /= Math.pow(size, 2.0);
+        return Math.sqrt(sum);
     }
 
     public static void main(String[] args) throws IOException {
@@ -256,7 +268,7 @@ public class Tomograf {
         frame = new JFrame("Tomografia");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(new MyPanel(tomo, tomo.emitterPositionsX.get(0), tomo.emitterPositionsY.get(0),
-                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image, sin_img, wyj_img, detectorsNo, detectorRange, emitterStep));
+                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image, sin_img, wyj_img, detectorsNo, detectorRange, emitterStep, estimate_error(image, wyj_img)));
         //frame.setSize(size+200, size+200);
         frame.pack();
         frame.setVisible(true);

@@ -8,7 +8,7 @@ import java.util.Hashtable;
 
 public class MyPanel extends JPanel implements ActionListener {
     public MyPanel(Tomograf _tomo, int x, int y, ArrayList<Integer> xs, ArrayList<Integer> ys, int detects, int size,
-                   BufferedImage img, BufferedImage _sin_img, BufferedImage _wyj_img, int detectorsNo, double detectorRange, double emitterStep) {
+                   BufferedImage img, BufferedImage _sin_img, BufferedImage _wyj_img, int detectorsNo, double detectorRange, double emitterStep, double error) {
         //setPreferredSize(new Dimension(size + 1100, size + 400));
         tomo = _tomo;
         image = img;
@@ -68,6 +68,10 @@ public class MyPanel extends JPanel implements ActionListener {
         JLabel lab_img_1 = new JLabel("Input image:");
         JLabel lab_img_2 = new JLabel("Sinogram:");
         JLabel lab_img_3 = new JLabel("Reconstructed image:");
+
+        JLabel err_lab = new JLabel("Error:");
+        JLabel err_val_lab = new JLabel(String.valueOf(error));
+
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
                         .addGroup(layout.createSequentialGroup()
@@ -79,7 +83,10 @@ public class MyPanel extends JPanel implements ActionListener {
                                         .addComponent(slider2)
                                         .addComponent(lab_slide_3)
                                         .addComponent(slider3)
-                                        .addComponent(button)))
+                                        .addComponent(button)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(err_lab)
+                                                .addComponent(err_val_lab))))
                         .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup()
                                         .addComponent(wej_lab)
@@ -101,7 +108,10 @@ public class MyPanel extends JPanel implements ActionListener {
                                         .addComponent(slider2)
                                         .addComponent(lab_slide_3)
                                         .addComponent(slider3)
-                                        .addComponent(button))
+                                        .addComponent(button)
+                                        .addGroup(layout.createParallelGroup()
+                                                .addComponent(err_lab)
+                                                .addComponent(err_val_lab)))
                                 .addComponent(img_lab))
                         .addGroup(layout.createParallelGroup()
                                 .addComponent(lab_img_1)
