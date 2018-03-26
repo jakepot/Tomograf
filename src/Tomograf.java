@@ -17,14 +17,15 @@ public class Tomograf {
     private double startingAngle = Math.toRadians(90.0);
 
 //    private int steps = (int) (180 / emitterStep); // dla 180 stopni
-    private int steps = (int) (360 / emitterStep);
+    private int steps;
 
     private ArrayList<Integer> emitterPositionsX = new ArrayList<>();
     private ArrayList<Integer> emitterPositionsY = new ArrayList<>();
     private ArrayList<ArrayList<Integer>> detectorPositionsX = new ArrayList<>();
     private ArrayList<ArrayList<Integer>> detectorPositionsY = new ArrayList<>();
 
-    private int[][] sinograph = new int[steps][detectorsNo]; //albo na odwrot
+//    private int[][] sinograph = new int[steps][detectorsNo]; //albo na odwrot
+    private int[][] sinograph;
 
     private int[][] reconstruction;
 
@@ -34,6 +35,8 @@ public class Tomograf {
         double step = Math.toRadians(emitterStep);
         double etdAngle = Math.toRadians(180.0 - (detectorRange / 2.0)); // emitter to 1st detector angle
         double detectorAngle = Math.toRadians(detectorRange / detectorsNo);
+        steps = (int) (360 / emitterStep);
+        sinograph = new int[steps][detectorsNo];
         for (int i = 0; i < steps; i++) {
             emitterPositionsX.add((int) (startingX + (Math.cos(i * step + startingAngle) * radius))); //i + 1
             emitterPositionsY.add((int) (startingY + (Math.sin(i * step + startingAngle) * radius)));
@@ -135,6 +138,19 @@ public class Tomograf {
                 }
             }
         }
+        double max = 0;
+        if (!reconstruct) {
+            for (int i = 0; i < sinograph.length; i++) {
+                for (int j = 0; j < sinograph[0].length; j++) {
+                    if (sinograph[i][j] > max) max = sinograph[i][j];
+                }
+            }
+            for (int i = 0; i < sinograph.length; i++) {
+                for (int j = 0; j < sinograph[0].length; j++) {
+                    sinograph[i][j] = (int)((sinograph[i][j] / max) * 255);
+                }
+            }
+        }
         if (reconstruct) {
             for (int i = 0; i < reconstruction.length; i++) {
                 for (int j = 0; j < reconstruction.length; j++) {
@@ -221,7 +237,7 @@ public class Tomograf {
     }
 
     public static void main(String[] args) throws IOException {
-        File file = new File("./photo.bmp");
+        File file = new File("./shepp256.png");
         BufferedImage image = ImageIO.read(file);
         int size = image.getHeight();
 

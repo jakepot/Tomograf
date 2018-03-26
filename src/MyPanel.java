@@ -25,22 +25,21 @@ public class MyPanel extends JPanel implements ActionListener {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         slider = new JSlider(JSlider.HORIZONTAL,
-                0, 280, detectorsNo);
+                10, 280, detectorsNo);
         slider.setMajorTickSpacing(20);
         slider.setMinorTickSpacing(5);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         slider2 = new JSlider(JSlider.HORIZONTAL,
-                0, 300, (int)detectorRange);
+                20, 360, (int)detectorRange);
         slider2.setMajorTickSpacing(20);
         slider2.setMinorTickSpacing(5);
         slider2.setPaintTicks(true);
         slider2.setPaintLabels(true);
         slider3 = new JSlider(JSlider.HORIZONTAL,
-                0, 200, (int)emitterStep * 100);
+                30, 200, (int)(emitterStep * 100.0));
         Hashtable labelTable = new Hashtable();
-        labelTable.put( new Integer( 0 ), new JLabel("0.0") );
-        labelTable.put( new Integer( 25 ), new JLabel("0.25") );
+        labelTable.put( new Integer( 30 ), new JLabel("0.3") );
         labelTable.put( new Integer( 50 ), new JLabel("0.5") );
         labelTable.put( new Integer( 75 ), new JLabel("0.75") );
         labelTable.put( new Integer( 100 ), new JLabel("1.0") );
