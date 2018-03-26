@@ -11,9 +11,9 @@ public class Tomograf {
 
     private static Raster raster;
 
-    private int detectorsNo = 180;
-    private double detectorRange = 270.0;
-    private double emitterStep = 1.0;
+    private static int detectorsNo = 180;
+    private static double detectorRange = 270.0;
+    private static double emitterStep = 1.0;
     private double startingAngle = Math.toRadians(90.0);
 
 //    private int steps = (int) (180 / emitterStep); // dla 180 stopni
@@ -27,6 +27,8 @@ public class Tomograf {
     private int[][] sinograph = new int[steps][detectorsNo]; //albo na odwrot
 
     private int[][] reconstruction;
+
+    private static JFrame frame;
 
     private void generatePositions(int startingX, int startingY, int radius) {
         double step = Math.toRadians(emitterStep);
@@ -142,7 +144,7 @@ public class Tomograf {
         }
     }
 
-    private void writeImage() {
+    private BufferedImage writeImage() {
         String path = "res/output.png";
 //        BufferedImage image = new BufferedImage(sinograph.length, sinograph[0].length, BufferedImage.TYPE_INT_RGB);
         BufferedImage image = new BufferedImage(sinograph.length, sinograph[0].length, BufferedImage.TYPE_INT_RGB);
@@ -161,9 +163,11 @@ public class Tomograf {
             e.printStackTrace();
         }
         System.out.println("Zapisano obraz.");
+
+        return image;
     }
 
-    private void writeReconstruction(int size) {
+    private BufferedImage writeReconstruction(int size) {
         String path = "res/reconstruction.png";
         BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < size; x++) {
@@ -180,10 +184,44 @@ public class Tomograf {
             e.printStackTrace();
         }
         System.out.println("Zapisano rekonstrukcje.");
+
+        return image;
+    }
+
+    public void caclutalte(BufferedImage image, ArrayList <Integer> list){
+        detectorsNo = list.get(0);
+        detectorRange = (double) list.get(1).intValue();
+        emitterStep = ((double) list.get(2).intValue()) / 100.0;
+        frame.setVisible(false);
+        frame.dispose();
+        detectorPositionsX.clear();
+        detectorPositionsY.clear();
+        emitterPositionsX.clear();
+        emitterPositionsY.clear();
+        Tomograf tomo = this;
+        int size = image.getHeight();
+        raster = image.getData();
+        tomo.generatePositions(size/2, size/2, size/2-1);
+        sinograph = new int[steps][detectorsNo];
+        tomo.reconstruction = new int[size][size];
+        tomo.bresenham(false);
+        tomo.bresenham(true);
+
+        BufferedImage sin_img = tomo.writeImage();
+        BufferedImage wyj_img = tomo.writeReconstruction(size);
+
+
+        frame = new JFrame("Tomografia");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setContentPane(new MyPanel(tomo, tomo.emitterPositionsX.get(0), tomo.emitterPositionsY.get(0),
+                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image, sin_img, wyj_img, detectorsNo, detectorRange, emitterStep));
+        //frame.setSize(size+200, size+200);
+        frame.pack();
+        frame.setVisible(true);
     }
 
     public static void main(String[] args) throws IOException {
-        File file = new File("./shepp256.png");
+        File file = new File("./photo.bmp");
         BufferedImage image = ImageIO.read(file);
         int size = image.getHeight();
 
@@ -196,16 +234,16 @@ public class Tomograf {
         tomo.bresenham(false);
         tomo.bresenham(true);
 
-        JFrame frame = new JFrame("Tomografia");
+        BufferedImage sin_img = tomo.writeImage();
+        BufferedImage wyj_img = tomo.writeReconstruction(size);
+
+        frame = new JFrame("Tomografia");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(new MyPanel(tomo.emitterPositionsX.get(0), tomo.emitterPositionsY.get(0),
-                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image));
-        //frame.setSize(size+20, size+20);
+        frame.setContentPane(new MyPanel(tomo, tomo.emitterPositionsX.get(0), tomo.emitterPositionsY.get(0),
+                tomo.detectorPositionsX.get(0), tomo.detectorPositionsY.get(0), tomo.detectorsNo, size, image, sin_img, wyj_img, detectorsNo, detectorRange, emitterStep));
+        //frame.setSize(size+200, size+200);
         frame.pack();
         frame.setVisible(true);
-
-        tomo.writeImage();
-        tomo.writeReconstruction(size);
     }
 
 }
